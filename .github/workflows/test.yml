@@ -1,0 +1,52 @@
+name: Test
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      apt_dependencies:
+        required: false
+        type: string
+      cmake_options:
+        required: false
+        type: string
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        configuration: [ Release, Debug ]
+
+    runs-on: ${{ inputs.os }}
+
+    steps:
+    - name: Install dependencies
+      if: runner.os == 'Linux' && inputs.apt_dependencies
+      run: sudo apt-get install -y ${{ inputs.apt_dependencies }}
+
+    - name: Get Conan
+      uses: turtlebrowser/get-conan@v1.0
+
+    - name: Install latest g++ for C++20
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get install gcc-10 g++-10
+        echo "CC=gcc-10" >> $GITHUB_ENV
+        echo "CXX=g++-10" >> $GITHUB_ENV
+
+    - name: Clone repo
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Configure CMake
+      run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
+
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.configuration }}
+      
+    - name: Test
+      working-directory: ${{ github.workspace }}/build
+      run: ctest -C ${{ matrix.configuration }}
