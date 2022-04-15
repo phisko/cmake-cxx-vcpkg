@@ -3,12 +3,17 @@ name: Build
 on:
   workflow_call:
     inputs:
-      os:
-        required: true
+      platforms:
+        required: false
         type: string
-      configuration:
-        required: true
+        default: >-
+          [ "ubuntu-latest", "windows-latest" ]
+      configurations:
+        required: false
         type: string
+        default: >-
+          [ "Debug", "Release" ]
+
       apt_dependencies:
         required: false
         type: string
@@ -16,9 +21,30 @@ on:
         required: false
         type: string
 
+      test_configurations:
+        required: false
+        type: string
+        default: all
+      test_platforms:
+        required: false
+        type: string
+        default: all
+
+      package_configurations:
+        required: false
+        type: string
+      package_platforms:
+        required: false
+        type: string
+
 jobs:
-  build:
-    runs-on: ${{ inputs.os }}
+  test:
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(inputs.platforms) }}
+        configuration: ${{ fromJson(inputs.configurations) }}
+
+    runs-on: ${{ matrix.platform }}
 
     steps:
     - name: Install dependencies
@@ -41,7 +67,17 @@ jobs:
         submodules: recursive
     
     - name: Configure CMake
-      run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ inputs.configuration }} ${{ inputs.cmake_options }}
+      run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
 
     - name: Build
-      run: cmake --build ${{ github.workspace }}/build --config ${{ inputs.configuration }}
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.configuration }}
+      
+    - name: Test
+      if: ${{ inputs.test_platforms && inputs.test_configurations && (inputs.test_platforms == 'all' || contains(fromJson(inputs.test_platforms), matrix.platform)) && (inputs.test_configurations == 'all' || contains(fromJson(inputs.test_configurations), matrix.configuration)) }}
+      working-directory: ${{ github.workspace }}/build
+      run: ctest -C ${{ matrix.configuration }}
+
+    - name: Package
+      if: ${{ inputs.package_platforms && inputs.package_configurations && (inputs.package_platforms == 'all' || contains(fromJson(inputs.package_platforms), matrix.platform)) && (inputs.package_configurations == 'all' || contains(fromJson(inputs.package_configurations), matrix.configuration)) }}
+      working-directory: ${{ github.workspace }}/build
+      run: cpack
