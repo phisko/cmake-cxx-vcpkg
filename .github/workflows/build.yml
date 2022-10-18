@@ -49,7 +49,7 @@ jobs:
     steps:
     - name: Install dependencies
       if: runner.os == 'Linux' && inputs.apt_dependencies
-      run: sudo apt-get install -y ${{ inputs.apt_dependencies }}
+      run: sudo apt-get --reinstall install -y ${{ inputs.apt_dependencies }}
 
     - name: Get Conan
       uses: turtlebrowser/get-conan@v1.0
