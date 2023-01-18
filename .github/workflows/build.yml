@@ -54,7 +54,17 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
 
-    steps:
+    steps:    
+    - name: Install LLVM and Clang
+      if: runner.os == 'windows-latest'
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "11.0"
+
+    - name: Set LIBCLANG_PATH
+      if: runner.os == 'windows-latest'
+      run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
+
     - name: Install apt dependencies
       if: runner.os == 'Linux' && inputs.apt_dependencies
       run: sudo apt-get update && sudo apt-get --fix-missing --reinstall install -y ${{ inputs.apt_dependencies }}
@@ -72,16 +82,6 @@ jobs:
         sudo apt-get install gcc-10 g++-10
         echo "CC=gcc-10" >> $GITHUB_ENV
         echo "CXX=g++-10" >> $GITHUB_ENV
-
-    - name: Install LLVM and Clang
-      if: runner.os == 'windows-latest'
-      uses: KyleMayes/install-llvm-action@v1
-      with:
-        version: "11.0"
-
-    - name: Set LIBCLANG_PATH
-      if: runner.os == 'windows-latest'
-      run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
 
     - name: Clone repo
       uses: actions/checkout@v3
