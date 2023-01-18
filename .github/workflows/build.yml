@@ -88,6 +88,9 @@ jobs:
       with:
         submodules: recursive
     
+    - name: Run Python script (test)
+      run: python -c "from clang.cindex import *"
+    
     - name: Configure CMake
       run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
 
