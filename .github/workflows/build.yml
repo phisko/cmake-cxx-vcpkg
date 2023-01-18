@@ -20,6 +20,10 @@ on:
       pip_dependencies:
         required: false
         type: string
+      
+      setup_run:
+        required: false
+        type: string
 
       cmake_options:
         required: false
@@ -62,6 +66,10 @@ jobs:
     - name: Install pip dependencies
       if: inputs.pip_dependencies
       run: pip3 install ${{ inputs.pip_dependencies }}
+    
+    - name: Custom setup
+      if: inputs.setup_run
+      run: ${{ inputs.setup_run }}
 
     - name: Get Conan
       uses: turtlebrowser/get-conan@v1.0
