@@ -59,15 +59,9 @@ jobs:
       if: runner.os == 'Linux' && inputs.apt_dependencies
       run: sudo apt-get update && sudo apt-get --fix-missing --reinstall install -y ${{ inputs.apt_dependencies }}
 
-    - name: Install Python
-      if: inputs.python_version
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ inputs.python_version }}
-    
     - name: Install pip dependencies
       if: inputs.pip_dependencies
-      run: pip3 install --user ${{ inputs.pip_dependencies }}
+      run: pip3 install ${{ inputs.pip_dependencies }}
 
     - name: Get Conan
       uses: turtlebrowser/get-conan@v1.0
