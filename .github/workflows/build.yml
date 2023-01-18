@@ -20,10 +20,6 @@ on:
       pip_dependencies:
         required: false
         type: string
-      
-      setup_run:
-        required: false
-        type: string
 
       cmake_options:
         required: false
@@ -66,10 +62,6 @@ jobs:
     - name: Install pip dependencies
       if: inputs.pip_dependencies
       run: pip3 install ${{ inputs.pip_dependencies }}
-    
-    - name: Custom setup
-      if: inputs.setup_run
-      run: ${{ inputs.setup_run }}
 
     - name: Get Conan
       uses: turtlebrowser/get-conan@v1.0
@@ -80,6 +72,16 @@ jobs:
         sudo apt-get install gcc-10 g++-10
         echo "CC=gcc-10" >> $GITHUB_ENV
         echo "CXX=g++-10" >> $GITHUB_ENV
+
+    - name: Install LLVM and Clang
+      if: runner.os == 'windows-latest'
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "11.0"
+
+    - name: Set LIBCLANG_PATH
+      if: runner.os == 'windows-latest'
+      run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
 
     - name: Clone repo
       uses: actions/checkout@v3
