@@ -56,13 +56,13 @@ jobs:
 
     steps:    
     - name: Install LLVM and Clang
-      if: runner.os == 'windows-latest'
+      if: runner.os == 'Windows'
       uses: KyleMayes/install-llvm-action@v1
       with:
         version: "11.0"
 
     - name: Set LIBCLANG_PATH
-      if: runner.os == 'windows-latest'
+      if: runner.os == 'Windows'
       run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
 
     - name: Install apt dependencies
