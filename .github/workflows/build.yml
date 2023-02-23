@@ -65,6 +65,9 @@ jobs:
 
     - name: Get Conan
       uses: turtlebrowser/get-conan@v1.0
+      
+    - name: Generate Conan profile
+      run: conan profile detect --force
 
     - name: Install latest g++ for C++20
       if: runner.os == 'Linux'
