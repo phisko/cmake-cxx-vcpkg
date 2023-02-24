@@ -13,6 +13,10 @@ on:
         type: string
         default: >-
           [ "Debug", "Release" ]
+      
+      conan_install_dir:
+        required: false
+        type: string
 
       apt_dependencies:
         required: false
@@ -68,6 +72,10 @@ jobs:
       
     - name: Generate Conan profile
       run: conan profile detect --force
+      
+    - name: Install conan dependencies
+      if: inputs.conan_install_dir
+      run: conan install ${{ inputs.conan_install_dir }} --build missing --output-folder ${{ github.workspace }}/build
 
     - name: Install latest g++ for C++20
       if: runner.os == 'Linux'
