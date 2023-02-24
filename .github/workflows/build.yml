@@ -75,7 +75,7 @@ jobs:
       
     - name: Install conan dependencies
       if: inputs.conan_install_dir
-      run: conan install ${{ inputs.conan_install_dir }} --build missing --output-folder ${{ github.workspace }}/build
+      run: conan install ${{ github.workspace }}/${{ inputs.conan_install_dir }} --build missing --output-folder ${{ github.workspace }}/build
 
     - name: Install latest g++ for C++20
       if: runner.os == 'Linux'
