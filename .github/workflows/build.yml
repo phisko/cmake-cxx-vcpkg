@@ -52,6 +52,7 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         platform: ${{ fromJSON(inputs.platforms) }}
         configuration: ${{ fromJson(inputs.configurations) }}
