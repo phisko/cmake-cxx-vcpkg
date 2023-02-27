@@ -29,6 +29,15 @@ on:
         required: false
         type: string
 
+      test_configurations:
+        required: false
+        type: string
+        default: all
+      test_platforms:
+        required: false
+        type: string
+        default: all
+
       package_configurations:
         required: false
         type: string
