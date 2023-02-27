@@ -95,7 +95,7 @@ jobs:
         vcpkgJsonGlob: ${{ github.workspace }}/vcpkg.json
 
     - name: Configure CMake
-      run: cmake -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
+      run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
 
     - name: Build
       run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.configuration }}
