@@ -21,6 +21,10 @@ on:
         required: false
         type: string
 
+      vcpkg_repo:
+        required: false
+        type: string
+        default: microsoft/vcpkg
       vcpkg_commit:
         required: false
         type: string
@@ -83,7 +87,7 @@ jobs:
     - name: Get vcpkg
       uses: actions/checkout@v3
       with:
-        repository: microsoft/vcpkg
+        repository: ${{ inputs.vcpkg_repo }}
         path: vcpkg
 
     - name: Run vcpkg
