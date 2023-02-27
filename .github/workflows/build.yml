@@ -90,6 +90,7 @@ jobs:
         repository: ${{ inputs.vcpkg_repo }}
         path: vcpkg
         submodules: recursive
+        fetch-depth: 0
 
     - name: Run vcpkg
       if: ${{ inputs.vcpkg_commit }}
