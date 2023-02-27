@@ -13,10 +13,6 @@ on:
         type: string
         default: >-
           [ "Debug", "Release" ]
-      
-      conan_install_dir:
-        required: false
-        type: string
 
       apt_dependencies:
         required: false
@@ -25,18 +21,13 @@ on:
         required: false
         type: string
 
-      cmake_options:
+      vcpkg_commit:
         required: false
         type: string
 
-      test_configurations:
+      cmake_options:
         required: false
         type: string
-        default: all
-      test_platforms:
-        required: false
-        type: string
-        default: all
 
       package_configurations:
         required: false
@@ -68,16 +59,6 @@ jobs:
       if: inputs.pip_dependencies
       run: pip3 install ${{ inputs.pip_dependencies }}
 
-    - name: Get Conan
-      uses: turtlebrowser/get-conan@v1.0
-      
-    - name: Generate Conan profile
-      run: conan profile detect --force
-      
-    - name: Install conan dependencies
-      if: inputs.conan_install_dir
-      run: conan install ${{ github.workspace }}/${{ inputs.conan_install_dir }} --build missing --output-folder ${{ github.workspace }}/build
-
     - name: Install latest g++ for C++20
       if: runner.os == 'Linux'
       run: |
@@ -89,17 +70,26 @@ jobs:
       uses: actions/checkout@v3
       with:
         submodules: recursive
-    
-    - name: Configure CMake
-      run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
 
-    - name: Build
-      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.configuration }}
-      
-    - name: Test
-      if: ${{ inputs.test_platforms && inputs.test_configurations && (inputs.test_platforms == 'all' || contains(fromJson(inputs.test_platforms), matrix.platform)) && (inputs.test_configurations == 'all' || contains(fromJson(inputs.test_configurations), matrix.configuration)) }}
-      working-directory: ${{ github.workspace }}/build
-      run: ctest -C ${{ matrix.configuration }}
+    - name: Get vcpkg
+      if: ${{ inputs.vcpkg_commit }}
+      uses: actions/checkout@v3
+      with:
+        repository: microsoft/vcpkg
+        path: vcpkg
+
+    - name: Run vcpkg
+      if: ${{ inputs.vcpkg_commit }}
+      uses: lukka/run-vcpkg@v10
+      with:
+        vcpkgDirectory: vcpkg
+        vcpkgGitCommitId: ${{ inputs.vcpkg_commit }}
+        vcpkgJsonGlob: ${{ github.workspace }}/vcpkg.json
+
+    - name: Run CMake
+      uses: lukka/run-cmake@v10
+      with:
+        configurePresetAdditionalArgs: "['-DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}']"
 
     - name: Package
       if: ${{ inputs.package_platforms && inputs.package_configurations && (inputs.package_platforms == 'all' || contains(fromJson(inputs.package_platforms), matrix.platform)) && (inputs.package_configurations == 'all' || contains(fromJson(inputs.package_configurations), matrix.configuration)) }}
