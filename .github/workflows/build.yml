@@ -89,6 +89,7 @@ jobs:
       with:
         repository: ${{ inputs.vcpkg_repo }}
         path: vcpkg
+        submodules: recursive
 
     - name: Run vcpkg
       if: ${{ inputs.vcpkg_commit }}
