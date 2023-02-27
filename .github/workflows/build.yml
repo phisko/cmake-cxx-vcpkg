@@ -72,7 +72,6 @@ jobs:
         submodules: recursive
 
     - name: Get vcpkg
-      if: ${{ inputs.vcpkg_commit }}
       uses: actions/checkout@v3
       with:
         repository: microsoft/vcpkg
@@ -86,10 +85,16 @@ jobs:
         vcpkgGitCommitId: ${{ inputs.vcpkg_commit }}
         vcpkgJsonGlob: ${{ github.workspace }}/vcpkg.json
 
-    - name: Run CMake
-      uses: lukka/run-cmake@v10
-      with:
-        configurePresetAdditionalArgs: "['-DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}']"
+    - name: Configure CMake
+      run: cmake -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
+
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.configuration }}
+
+    - name: Test
+      if: ${{ inputs.test_platforms && inputs.test_configurations && (inputs.test_platforms == 'all' || contains(fromJson(inputs.test_platforms), matrix.platform)) && (inputs.test_configurations == 'all' || contains(fromJson(inputs.test_configurations), matrix.configuration)) }}
+      working-directory: ${{ github.workspace }}/build
+      run: ctest -C ${{ matrix.configuration }}
 
     - name: Package
       if: ${{ inputs.package_platforms && inputs.package_configurations && (inputs.package_platforms == 'all' || contains(fromJson(inputs.package_platforms), matrix.platform)) && (inputs.package_configurations == 'all' || contains(fromJson(inputs.package_configurations), matrix.configuration)) }}
