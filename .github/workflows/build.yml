@@ -104,7 +104,7 @@ jobs:
       run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ${{ inputs.cmake_options }}
 
     - name: Build
-      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.configuration }}
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.configuration }} -j 25
 
     - name: Test
       if: ${{ inputs.test_platforms && inputs.test_configurations && (inputs.test_platforms == 'all' || contains(fromJson(inputs.test_platforms), matrix.platform)) && (inputs.test_configurations == 'all' || contains(fromJson(inputs.test_configurations), matrix.configuration)) }}
